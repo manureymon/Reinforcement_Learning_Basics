@@ -1,28 +1,42 @@
-## Reinforcement Learning Basics
+# Reinforcement Learning: Blackjack Q-Learning Agent
 
-El Aprendizaje por Refuerzo (RL) es una metodología de aprendizaje automático en la que un agente aprende a tomar decisiones mediante la interacción con un entorno. 
+## What is Reinforcement Learning (RL)?
+Reinforcement Learning (RL) is a type of machine learning where an **agent** learns to make decisions by interacting with an **environment**. The process follows these steps:
 
-# Blackjack Q-Learning Agent
-El objetivo de este proyecto es el siguiente:
+1. **Observation**: The agent perceives the current state of the environment.
+2. **Action**: It chooses an action based on its strategy.
+3. **Reward**: The agent receives a reward or penalty based on the chosen action.
+4. **Update**: It adjusts its strategy to improve future decisions.
 
-Entrenaremos un agente de Aprendizaje por Refuerzo (Reinforcement Learning) para jugar Blackjack utilizando un método basado en la ecuación de Bellman. Se implementará una estrategia epsilon-greedy para la selección de acciones y se evaluará el desempeño del modelo después del entrenamiento.
+This cycle repeats until the agent learns an **optimal strategy** that maximizes total long-term rewards.
 
-## Método de Bellman para Actualizar los Valores de $Q$
+---
 
-La ecuación de Bellman se usa para actualizar los valores $Q(s, a)$ asociados a cada estado y acción:
+## Blackjack Q-Learning Agent
+
+### Goal
+The goal of this project is to train a **Reinforcement Learning agent** to play Blackjack using the **Q-learning** method. We will implement an **epsilon-greedy** strategy for action selection and evaluate the model's performance after training.
+
+---
+
+## The Bellman Equation for Q-Value Updates
+
+Q-learning uses the **Bellman equation** to update $Q(s, a)$  values, which represent the expected utility of taking action $a$ in state $s$:
 
 $$
 Q(s, a) \leftarrow Q(s, a) + \alpha \left[ r + \gamma \max_{a'} Q(s', a') - Q(s, a) \right]
 $$
 
-donde:
-- $Q(s, a)$ representa el valor de una acción $a$ en un estado $s$.
-- $\alpha$ es la tasa de aprendizaje (learning rate).
-- $r$ es la recompensa obtenida después de tomar la acción $a$.
-- $\gamma$ es el factor de descuento (discount factor), que pondera la importancia de las futuras recompensas.
-- $\max_{a'} Q(s', a')$ es el valor estimado de la mejor acción posible en el siguiente estado $s'$.
+where:
+- $Q(s, a)$ represents the value of taking action $a$ in state $s$.
+- $\alpha$ (learning rate) determines how much new experiences influence updates.
+- $r$ is the reward obtained after taking action $a$.
+- $\gamma$ (discount factor) controls the importance of future rewards.
+- $\max_{a'} Q(s', a')$ is the estimated value of the best action in the next state $s'$.
 
-## Librerías Utilizadas
+---
+
+## Libraries Used
 
 ```python
 import numpy as np
@@ -31,42 +45,62 @@ import matplotlib.pyplot as plt
 import gymnasium as gym
 from collections import defaultdict
 ```
+---
 
-## Configuración
+### Configuration
 
-El script utiliza los siguientes hiperparámetros:
+The script uses the following hyperparameters:
 
-- alpha (0.4): Tasa de aprendizaje.
+- **alpha (0.4)**: Learning rate.
+- **gamma (0.9)**: Discount factor for future rewards.
+- **epsilon (0.4)**: Exploration probability in the epsilon-greedy policy.
+- **train_episodes (250000)**: Number of training episodes.
+- **test_episodes (50)**: Number of test episodes after training.
 
-- gamma (0.9): Factor de descuento para futuras recompensas.
+---
 
-- epsilon (0.4): Probabilidad de exploración en la política epsilon-greedy.
+## How the Code Works
 
-- train_episodes (250000): Número de episodios de entrenamiento.
+### Initialization
 
-- test_episodes (50): Número de episodios de prueba tras el entrenamiento.
+- The Blackjack environment is set up using `gymnasium`.
+- A **Q-table** is created to store state-action values.
 
-## Explicación del Código
+### Epsilon-Greedy Policy
 
-1. **Inicialización**: Se configura el entorno de Blackjack usando `gymnasium` y se define la tabla $Q$ como un `defaultdict`.
-2. **Política Epsilon-Greedy**: Se implementa una estrategia donde el agente elige una acción aleatoria con probabilidad $\epsilon$ y la mejor acción conocida con $1 - \epsilon$.
-3. **Entrenamiento**: Durante 250,000 episodios, el agente juega partidas de Blackjack y actualiza su tabla $Q$ usando la ecuación de Bellman.
-4. **Pruebas**: Tras el entrenamiento, el agente juega 50 partidas sin exploración, seleccionando siempre la acción óptima.
-5. **Visualización**: Se grafica el desempeño del agente en términos de victorias, derrotas y empates.
-6. **Cierre del Entorno**: Se finaliza la simulación cerrando el entorno de `gymnasium`.
+- The agent chooses a **random action** with probability $\epsilon$.
+- Otherwise, it picks the **best-known action** based on the Q-table.
 
+### Training
 
+- The agent plays **250,000 Blackjack games** to learn optimal strategies.
+- The **Q-table** is updated using the **Bellman equation** during each game.
 
-## Consideraciones Adicionales
+### Testing
 
-En la vida real, los casinos utilizan múltiples barajas en el Blackjack para dificultar el conteo de cartas. Sería recomendable modificar la simulación para incluir diferentes cantidades de barajas y analizar cómo afecta la estrategia del agente:
+- After training, the agent plays **50 test games** without exploration, always selecting the best action (exploitation).
 
-* **Stack de 4 Barajas:**
-    El agente juega con un stack de 4 barajas de cartas, lo que incrementa la complejidad del entorno y permite al agente aprender estrategias más avanzadas.
-* **Contar Cartas:**
-    El agente implementa una técnica básica de conteo de cartas (Hi-Lo) para calcular si es favorable pedir una carta adicional. Se utiliza un contador que incrementa con cartas bajas (2-6) y decrementa con cartas altas (10, J, Q, K, A), lo que le ayuda a determinar si las probabilidades están a su favor para pedir otra carta.
+### Visualization
 
+- The agent's performance is visualized by plotting the number of **wins, losses, and draws** across the test games.
 
-by:
+### Closing the Environment
+
+- The **gymnasium environment** is properly closed after the testing phase to release resources.
+
+---
+
+### Additional Considerations
+
+In real life, casinos use multiple decks in Blackjack to make card counting more difficult. It is recommended to modify the simulation to include different numbers of decks and analyze how it affects the agent's strategy:
+
+* **4-Deck Stack**:  
+  The agent plays with a 4-deck stack, which increases the complexity of the environment and allows the agent to learn more advanced strategies.
+  
+* **Card Counting**:  
+  The agent implements a basic card counting technique (Hi-Lo) to determine whether it's favorable to draw an additional card. A counter is used, which increases with low cards (2-6) and decreases with high cards (10, J, Q, K, A), helping the agent determine if the odds are in its favor to draw another card.
+
+---
+#### Authors:
 - Rania Aguirre
 - Manuel Reyna
